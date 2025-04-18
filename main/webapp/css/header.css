@@ -1,75 +1,101 @@
 @charset "UTF-8";
 
+/* --- Basic Reset --- */
 * {
 	box-sizing: border-box;
 }
-
 body {
 	font-family: 'Montserrat', sans-serif;
 	line-height: 1.6;
 	margin: 0;
 	min-height: 100vh;
 }
-
 ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
-
-h2, h3, a {
-	color: #34495e;
-}
-
 a {
 	text-decoration: none;
-}
-
-.logo {
-	margin: 0;
-	font-size: 1.45em;
-}
-
-.logo a img {
-	height: 50px;
-}
-
-.main-nav {
-	margin-top: 5px;
-}
-
-.logo a, .main-nav a, .main-nav li button {
-	padding: 10px 15px;
-	text-transform: uppercase;
-	text-align: center;
-	display: block;
-}
-
-.main-nav a, .main-nav li button {
 	color: #34495e;
-	font-size: .99em;
 }
 
-.main-nav a:hover, .main-nav li button {
-	color: #718daa;
-}
-
+/* --- Header Container --- */
 .header {
-	padding-top: .5em;
-	padding-bottom: .5em;
-	border: 1px solid #a2a2a2;
-	background-color: white;
-	-webkit-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);
-	-moz-box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);
-	box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.75);
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+	background-color: #000;
+	color: white;
+	padding: 10px 20px;
+	width: 100%;
+	box-shadow: 0px 0px 14px rgba(0, 0, 0, 0.75);
 }
+
+/* --- Top Row: Logo and Icons --- */
+.top-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+/* Centered Logo */
+.logo {
+	text-align: center;
+	flex-grow: 1;
+}
+.logo img {
+	height: 80px;
+	width: 150px;
+}
+
+/* Icons beside logo */
+.header-icon {
+	color: white;
+	font-size: 1.2em;
+	cursor: pointer;
+	padding: 0 10px;
+}
+
+.header-icon:hover {
+	color: #ccc;
+}
+
+/* --- Bottom Row: Navigation --- */
+.main-nav {
+	display: flex;
+	justify-content: center;
+	gap: 30px;
+	margin-top: 10px;
+}
+
+.main-nav li a, .main-nav li button {
+	text-transform: uppercase;
+	font-weight: bold;
+	color: white;
+	font-size: 0.95em;
+	padding: 8px 12px;
+	border-radius: 4px;
+	transition: background-color 0.3s ease;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+.main-nav li a:hover, .main-nav li button:hover {
+	background-color: #333;
+}
+
+/* --- Responsive Fix --- */
+@media (max-width: 768px) {
+	.top-row, .main-nav {
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
 
 /* ================================= 
   Media Queries
-==================================== */
+==================================== 
 @media ( min-width : 769px) {
 	.header, .main-nav {
 		display: flex;
@@ -89,4 +115,4 @@ a {
 		flex-direction: row;
 		justify-content: space-between;
 	}
-}
+}*/

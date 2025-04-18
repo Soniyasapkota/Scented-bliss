@@ -1,4 +1,4 @@
-package com.islingtonstudent.controller;
+package com.scentedbliss.controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
