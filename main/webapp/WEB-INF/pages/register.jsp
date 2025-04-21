@@ -35,10 +35,7 @@
 		<c:if test="${not empty success}">
 			<p class="success-message">${success}</p>
 		</c:if>
-		
-		
-		
-		
+	
 
 		<form action="${pageContext.request.contextPath}/register" method="post"
 			enctype="multipart/form-data">

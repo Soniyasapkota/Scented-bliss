@@ -1,6 +1,7 @@
 package com.scentedbliss.service;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +39,7 @@ public class LoginService {
 	 * @return true if the user credentials are valid, false otherwise; null if a
 	 *         connection error occurs
 	 */
-	public Boolean loginUser(UserModel userModel) {
+	/***public Boolean loginUser(UserModel userModel) {
 		if (isConnectionError) {
 			System.out.println("Connection Error!");
 			return null;
@@ -47,6 +48,8 @@ public class LoginService {
 		String query = "SELECT username, password FROM users WHERE username = ?";
 		try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
 			stmt.setString(1, userModel.getUsername());
+			//stmt.setString(1, userModel.getRole());
+
 			ResultSet result = stmt.executeQuery();
 
 			if (result.next()) {
@@ -58,7 +61,41 @@ public class LoginService {
 		}
 
 		return false;
-	}
+	}*/
+	
+	/**
+     * Validates the user credentials against the database records.
+     *
+     * @param userModel the UserModel object containing user credentials
+     * @return true if the user credentials are valid, false otherwise; null if a
+     *         connection error occurs
+     */
+    public Boolean loginUser(UserModel userModel) {
+        if (isConnectionError) {
+            System.out.println("Connection Error!");
+            return null;
+        }
+
+        String query = "SELECT username, password, role FROM users WHERE username = ?";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
+            stmt.setString(1, userModel.getUsername());
+
+            ResultSet result = stmt.executeQuery();
+
+            if (result.next()) {
+                // Set the role in UserModel
+                userModel.setRole(result.getString("role"));
+                return validatePassword(result, userModel);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return false;
+    }
+	
+
 
 	/**
 	 * Validates the password retrieved from the database.
@@ -69,7 +106,7 @@ public class LoginService {
 	 * @return true if the passwords match, false otherwise
 	 * @throws SQLException if a database access error occurs
 	 */
-	private boolean validatePassword(ResultSet result, UserModel userModel) throws SQLException {
+private boolean validatePassword(ResultSet result, UserModel userModel) throws SQLException {
 		String dbUsername = result.getString("username");
 		String dbPassword = result.getString("password");
 

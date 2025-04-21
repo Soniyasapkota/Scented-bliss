@@ -1,6 +1,7 @@
 package com.scentedbliss.controller;
 
 import jakarta.servlet.ServletException;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ public class LogoutController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		CookieUtil.deleteCookie(response, "role");
+		CookieUtil.deleteCookie(response, "username");
 		SessionUtil.invalidateSession(request);
 		response.sendRedirect(request.getContextPath() + "/login");
 	}

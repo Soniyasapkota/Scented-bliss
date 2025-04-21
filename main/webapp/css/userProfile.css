@@ -1,0 +1,106 @@
+@charset "UTF-8";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Georgia', serif;
+  }
+  
+  body {
+    background-color: #ffffff;
+    color: #333333;
+  }
+  
+ 
+.profile-container {
+    display: flex;
+    text-align: center;
+    padding: 40px;
+}
+
+
+.profile-icon {
+    font-size: 60px;
+}
+
+.password-section {
+    width: 100%;
+}
+
+form {
+    max-width: 400px;
+    margin: 0 auto 30px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    text-align: left;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="file"] {
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.save-btn,
+.update-btn {
+    margin-top: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.password-section {
+    border: 1px solid #ccc;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 8px;
+    margin-top: 50px;
+}
+.profile-info-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin: 30px auto;
+    max-width: 700px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ccc;
+}
+
+.user-details {
+    text-align: left;
+    font-size: 16px;
+}
+
+.user-details p {
+    margin: 6px 0;
+}
+
+  

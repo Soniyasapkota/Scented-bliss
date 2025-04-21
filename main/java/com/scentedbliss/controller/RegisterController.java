@@ -4,6 +4,7 @@ import java.io.IOException;
 
 
 
+
 import java.time.LocalDate;
 
 import com.scentedbliss.model.UserModel;
@@ -113,6 +114,20 @@ public class RegisterController extends HttpServlet {
 	        return "Password is required.";
 	    if (ValidationUtil.isNullOrEmpty(retypePassword))
 	        return "Please retype the password.";
+	    
+	    if (!ValidationUtil.isEmailUnique(email)) {
+	        return "Email is already in use!";
+	        
+	    }
+
+	    if (!ValidationUtil.isPhoneUnique(phoneNumber)) {
+	        return "Phone number is already in use!";
+	        
+	    }
+	    
+	    if (!ValidationUtil.isUsernameUnique(username))
+	        return "Username is already taken. Please choose a different one.";
+	    
 
 	    // Convert date of birth
 	    LocalDate dob;

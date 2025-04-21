@@ -2,10 +2,13 @@ package com.scentedbliss.controller;
 
 import java.io.IOException;
 
+
 import com.scentedbliss.model.UserModel;
 import com.scentedbliss.service.LoginService;
 import com.scentedbliss.util.CookieUtil;
 import com.scentedbliss.util.SessionUtil;
+
+
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -52,19 +55,20 @@ public class LoginController extends HttpServlet {
 	 * @throws ServletException if a servlet-specific error occurs
 	 * @throws IOException      if an I/O error occurs
 	 */
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+	/***protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	    String username = req.getParameter("username");
 	    String password = req.getParameter("password");
 	    UserModel userModel = new UserModel(username, password);
 	    Boolean loginStatus = loginService.loginUser(userModel);
 	    
 	    if (loginStatus != null && loginStatus) {
-	        String role = username.equals("admin") ? "admin" : "Customer";
+	    	//String role= userModel.getRole();
+	        String role = username.equals("Soniya003") ? "admin" : "Customer";
 	        SessionUtil.setAttribute(req, "role", role);
 	        CookieUtil.addCookie(resp, "username", username, 5 * 30); // Expires in 150 mins
 	        // Redirect based on role
-	        if (role.equals("admin")) {
+	        if (role.equals("Admin")) {
 	            resp.sendRedirect(req.getContextPath() + "/dashboard");
 	        } else {
 	            resp.sendRedirect(req.getContextPath() + "/home");
@@ -72,7 +76,39 @@ public class LoginController extends HttpServlet {
 	    } else {
 	        handleLoginFailure(req, resp, loginStatus);
 	    }
-	}
+	}*/
+	
+	/**
+     * Handles POST requests for user login.
+     *
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+        UserModel userModel = new UserModel(username, password);
+        Boolean loginStatus = loginService.loginUser(userModel);
+
+        if (loginStatus != null && loginStatus) {
+            String role = userModel.getRole();
+            SessionUtil.setAttribute(req, "role", role);
+            CookieUtil.addCookie(resp, "username", userModel.getUsername(), 24 * 60 * 60); // 1 day
+            // Redirect based on role
+            if ("Admin".equalsIgnoreCase(role)) {
+                resp.sendRedirect(req.getContextPath() + "/dashboard");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/home");
+            }
+        } else {
+            handleLoginFailure(req, resp, loginStatus);
+        }
+    }
+
+	
+
 
 	/**
 	 * Handles login failures by setting attributes and forwarding to the login

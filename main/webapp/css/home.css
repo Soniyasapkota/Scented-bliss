@@ -1,5 +1,18 @@
 @charset "UTF-8";
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+
+/* Main Section */
 .main {
   display: flex;
   justify-content: space-around;
@@ -81,3 +94,38 @@
   display: block;
   margin-top: 8px;
 }
+
+/* Quote Section */
+.quote-section {
+  padding: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  gap: 2rem;
+}
+
+.quote {
+  flex: 1;
+  font-size: 18px;
+  min-width: 250px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.quote-images {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  min-width: 500px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.quote-images img {
+  max-width: 150px;
+  border-radius: 10px;
+}
+

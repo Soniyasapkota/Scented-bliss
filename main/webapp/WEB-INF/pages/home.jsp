@@ -7,8 +7,8 @@
 <title>Home</title>
 <link rel="stylesheet" type="text/css"
 	href="${pageContext.request.contextPath}/css/header.css" />
-<link rel="stylesheet" type="text/css"
-	href="${pageContext.request.contextPath}/css/home.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/home.css" />
+
 <link rel="stylesheet" type="text/css"
 	href="${pageContext.request.contextPath}/css/footer.css" />
 </head>
@@ -18,15 +18,16 @@
 
 	<section class="main">
     <div class="main-item1">
-        <img src="image/coco_bestselling.jpg" alt="Chanel Perfume">
-        <p>A Fragrance collection that embodies the house.</p>
+        <img src="${pageContext.request.contextPath}/resources/images/system/coco_bestselling.jpg" alt="Chanel Perfume">
+       
     </div>
     <div class="main-logo">
-        <img src="image/main_img.jpg" alt="Scented Bliss Logo">
+        <img src="${pageContext.request.contextPath}/resources/images/system/Photo5.jpg" alt="Scented Bliss Logo">
+         <p>A Fragrance collection that embodies the house.</p>
     </div>
     <div class="main-item2">
-        <img src="image/ariana.jpg" alt="Victoria's Secret">
-        <p>Fresh Fragrances<br>Floral Fragrances<br>Sweet Fragrances</p>
+        <img src="${pageContext.request.contextPath}/resources/images/system/ariana.jpg" alt="Victoria's Secret">
+      
     </div>
   </section>
 
@@ -35,21 +36,21 @@
     <h2>Best Selling Product</h2>
     <div class="products">
         <div class="product-card">
-            <img src="image/sauvage.jpg" alt="Dior Sauvage">
+            <img src="${pageContext.request.contextPath}/resources/images/system/sauvage.jpg" alt="Dior Sauvage">
             <p>Sale Price: $89.13</p>
             <p class="original">Original Price: $110.90</p>
             <button>🛒</button>
             <button>Buy Now</button>
         </div>
         <div class="product-card">
-            <img src="image/victoria.jpg" alt="Juicy Couture">
+            <img src="${pageContext.request.contextPath}/resources/images/system/victoria.jpg" alt="Juicy Couture">
             <p>Sale Price: $45.00</p>
             <p class="original">Original Price: $69.00</p>
             <button>🛒</button>
             <button>Buy Now</button>
         </div>
         <div class="product-card">
-            <img src="image/blue_channel.jpg" alt="Coco Chanel">
+            <img src="${pageContext.request.contextPath}/resources/images/system/blue_channel.jpg" alt="Coco Chanel">
             <p>Sale Price: $90.50</p>
             <p class="original">Original Price: $115.90</p>
             <button>🛒</button>
@@ -68,9 +69,9 @@
         reflection of our personality.
     </p>
     <div class="quote-images">
-        <img src="image/coco_channel.jpg" alt="Bleu de Chanel">
-        <img src="image/miss_dior.jpg" alt="Miss Dior">
-        <img src="image/pretty.jpg" alt="Pretty">
+        <img src="${pageContext.request.contextPath}/resources/images/system/coco_channel.jpg" alt="Bleu de Chanel">
+        <img src="${pageContext.request.contextPath}/resources/images/system/miss_dior.jpg" alt="Miss Dior">
+        <img src="${pageContext.request.contextPath}/resources/images/system/perfumeing.jpg" alt="Pretty">
     </div>
   </section>
 

@@ -1,8 +1,16 @@
 package com.scentedbliss.util;
 
+import java.sql.Connection;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.regex.Pattern;
+
+import com.scentedbliss.config.DbConfig;
+
 import jakarta.servlet.http.Part;
 
 public class ValidationUtil {
@@ -70,4 +78,53 @@ public class ValidationUtil {
         LocalDate today = LocalDate.now();
         return Period.between(dob, today).getYears() >= 16;
     }
+
+
+//11. Validate if the Email already exists
+public static boolean isEmailUnique(String email) {
+    try (Connection conn = DbConfig.getDbConnection();
+         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM users WHERE email = ?")) {
+        
+        stmt.setString(1, email);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) == 0; // return true if count is 0 (email not used)
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false; // default to false on error
+}
+
+// Check if phone number is already used
+public static boolean isPhoneUnique(String phone) {
+    try (Connection conn = DbConfig.getDbConnection();
+         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM users WHERE phoneNumber = ?")) {
+        
+        stmt.setString(1, phone);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) == 0;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+public static boolean isUsernameUnique(String username) {
+    String query = "SELECT COUNT(*) FROM users WHERE username = ?";
+    try (Connection conn = DbConfig.getDbConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, username);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) == 0;  // If count is 0, the username is unique
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;  // In case of error or exception, assume username is not unique
+}
 }

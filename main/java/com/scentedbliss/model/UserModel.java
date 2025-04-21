@@ -17,11 +17,12 @@ public class UserModel {
 	
 	public UserModel() {}
 	
-	public UserModel(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
+
 	
+	public UserModel(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 	
 	
 	public UserModel( String firstName, String lastName, String address, String email, String phoneNumber, String gender,
