@@ -15,15 +15,15 @@ import java.io.IOException;
  * Servlet implementation class HomeController
  */
 
-@WebServlet(asyncSupported = true, urlPatterns = {"/adminpassword"})
-public class AdminpasswordController extends HttpServlet {
+@WebServlet(asyncSupported = true, urlPatterns = {"/productlist"})
+public class ProductlistController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
     @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
     	//send redirect || requestdispatcher
     	// load jsp design page
-    	req.getRequestDispatcher("WEB-INF/pages/adminpassword.jsp").forward(req, response);
+    	req.getRequestDispatcher("WEB-INF/pages/productlist.jsp").forward(req, response);
 		
 	} 
 

@@ -22,6 +22,8 @@ pageContext.setAttribute("currentUser", currentUser);
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <title>Perfume Shop Dashboard</title>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/dashboard.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/productlist.css" />
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -32,14 +34,14 @@ pageContext.setAttribute("currentUser", currentUser);
 <body>
  <div class="container">
    <aside class="sidebar">
-     <h2>Perfume Shop</h2>
+     <h2>Admin</h2>
      <ul>
-       <li>Dashboard</li>
-       <li>Orders</li>
-       <li>Products</li>
-       <li>Customers</li>
+       <li> <a href="#">Dashboard</a></li>
+       <li>Order List</li>
+       <li> <a href="${pageContext.request.contextPath}/productlist">Product List</a></li>
+       <li><a href="${pageContext.request.contextPath}/customerlist">Customer List</a></li>
        <li>Sales Reports</li>
-       <li>Settings</li>
+       <li><a href="${pageContext.request.contextPath}/userProfile"></a>Account</li>
      </ul>
    </aside>
 
@@ -103,12 +105,7 @@ pageContext.setAttribute("currentUser", currentUser);
        </section>
      </div>
 
-     <footer class="footer">
-       <p>© 2025 Scented Bliss. All rights reserved.</p>
-       <p>Email: scentedbliss@fragrance.com</p>
-       <p>Phone: 9847675642</p>
-       <p>Address: Kamalpokhari, Nepal</p>
-     </footer>
+     
    </main>
  </div>
 

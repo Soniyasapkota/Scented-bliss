@@ -21,6 +21,7 @@ public class AuthenticationFilter implements Filter {
     private static final String REGISTER = "/register";
     private static final String HOME = "/home";
     private static final String DASHBOARD = "/dashboard";
+    private static final String USERPROFILE ="/userProfile";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

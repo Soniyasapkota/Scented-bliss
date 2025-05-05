@@ -54,29 +54,27 @@ public class RegisterController extends HttpServlet {
 	        }
 
 	        UserModel userModel = extractUserModel(req);
+	        String imageUrl = uploadImage(req);
+            if (imageUrl == null) {
+                handleError(req, resp, "Could not upload the image. Please try again later!");
+                return;
+            }
+            userModel.setImageUrl(imageUrl);
+            System.out.println("Image URL set in UserModel: " + imageUrl);
 	        Boolean isAdded = RegisterService.addUser(userModel);
 
 	        if (isAdded == null) {
-	            handleError(req, resp, "Our server is under maintenance. Please try again later!");
-	        } else if (isAdded) {
-	            try {
-	                if (uploadImage(req)) {
-	                    handleSuccess(req, resp, "Your account is successfully created!", "/WEB-INF/pages/login.jsp");
-	                } else {
-	                    handleError(req, resp, "Could not upload the image. Please try again later!");
-	                }
-	            } catch (IOException | ServletException e) {
-	                handleError(req, resp, "An error occurred while uploading the image. Please try again later!");
-	                e.printStackTrace(); // Log the exception
-	            }
-	        } else {
-	            handleError(req, resp, "Could not register your account. Please try again later!");
-	        }
-	    } catch (Exception e) {
-	        handleError(req, resp, "An unexpected error occurred. Please try again later!");
-	        e.printStackTrace(); // Log the exception
-	    }
-	}
+                handleError(req, resp, "Our server is under maintenance. Please try again later!");
+            } else if (isAdded) {
+                handleSuccess(req, resp, "Your account is successfully created!", "/WEB-INF/pages/login.jsp");
+            } else {
+                handleError(req, resp, "Could not register your account. Please try again later!");
+            }
+        } catch (Exception e) {
+            handleError(req, resp, "An unexpected error occurred. Please try again later!");
+            e.printStackTrace();
+        }
+    }
 
 	private String validateRegistrationForm(HttpServletRequest req) {
 	    String firstName = req.getParameter("firstName");
@@ -196,10 +194,22 @@ public class RegisterController extends HttpServlet {
 				 username, password, dob, role, imageUrl);
 	}
 
-	private boolean uploadImage(HttpServletRequest req) throws IOException, ServletException {
-	    Part image = req.getPart("image");
-	    return ImageUtil.uploadImage(image, req.getServletContext().getRealPath("/"), "user");
-	}
+	private String uploadImage(HttpServletRequest req) throws IOException, ServletException {
+        Part image = req.getPart("image");
+        String saveFolder = "/imageuser";
+        String defaultImage = "/resources/images/system/Photo1.png";
+
+        if (image == null || image.getSize() == 0) {
+            return defaultImage; // Use default image if none provided
+        }
+
+        String rootPath = req.getServletContext().getRealPath("/");
+        boolean isUploaded = ImageUtil.uploadImage(image, rootPath, saveFolder);
+        if (isUploaded) {
+            return "/resources/images" + saveFolder + "/" + ImageUtil.getImageNameFromPart(image);
+        }
+        return defaultImage; // Fallback to default if upload fails
+    }
 
 	private void handleSuccess(HttpServletRequest req, HttpServletResponse resp, String message, String redirectPage)
 	        throws ServletException, IOException {

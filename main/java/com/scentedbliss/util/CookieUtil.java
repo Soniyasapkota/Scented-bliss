@@ -43,6 +43,20 @@ public class CookieUtil {
         }
         return null;
     }
+    
+    /**
+     * Retrieves the value of a cookie by its name from the HttpServletRequest.
+     *
+     * @param request the HttpServletRequest to get the cookie from
+     * @param name    the name of the cookie to retrieve
+     * @return the value of the cookie if found, otherwise null
+     */
+    public static String getCookieValue(HttpServletRequest request, String name) {
+        Cookie cookie = getCookie(request, name);
+        return cookie != null ? cookie.getValue() : null;
+    }
+
+    /**
 
     /**
      * Deletes a cookie by setting its max age to 0.
