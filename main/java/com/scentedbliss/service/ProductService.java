@@ -221,5 +221,28 @@ public class ProductService {
             return null;
         }
     }
+    
+    public List<String> getAllBrands() {
+        if (isConnectionError) {
+            System.err.println("Connection Error!");
+            return null;
+        }
+
+        String query = "SELECT DISTINCT brand FROM products";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            List<String> brands = new ArrayList<>();
+
+            while (rs.next()) {
+                brands.add(rs.getString("brand"));
+            }
+            rs.close();
+            return brands;
+        } catch (SQLException e) {
+            System.err.println("SQL Error during brand retrieval: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
    
 }

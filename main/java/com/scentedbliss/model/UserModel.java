@@ -2,6 +2,7 @@ package com.scentedbliss.model;
 import java.time.LocalDate;
 
 public class UserModel {
+	private int userId;
 	private String firstName;
 	private String lastName;
 	private String address;
@@ -25,9 +26,10 @@ public class UserModel {
     }
 	
 	
-	public UserModel( String firstName, String lastName, String address, String email, String phoneNumber, String gender,
+	public UserModel( int userId, String firstName, String lastName, String address, String email, String phoneNumber, String gender,
 			String username, String password, LocalDate dob, String role, String imageUrl) {
 		super();
+		this.userId = userId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
@@ -41,14 +43,32 @@ public class UserModel {
 		this.imageUrl = imageUrl;
 	}
 	
-	
-	
-	
+	public UserModel(  String firstName, String lastName, String address, String email, String phoneNumber, String gender,
+			String username, String password, LocalDate dob, String role, String imageUrl) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.address = address;
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.gender = gender;
+		this.username = username;
+		this.password = password;
+		this.dob = dob;
+		this.role = role;
+		this.imageUrl = imageUrl;
+	}
 
 
-	
+
+	public int getUserId() {
+		return userId;
+	}
 
 
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 
 
 

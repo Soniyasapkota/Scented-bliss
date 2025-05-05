@@ -73,7 +73,10 @@
               <h3 class="product-name">${product.productName}</h3>
               <p class="product-type">${product.brand}</p>
               <p class="price">$${product.price}</p>
-              <button class="add-to-bag" onclick="addToCart(${product.productId}, '${product.productName}', ${product.price}, '${product.brand}', '${product.productImage}')">ADD TO CART</button>
+              <div class="cart-controls">
+                <input type="number" class="quantity-input" min="1" value="1" data-product-id="${product.productId}" style="width: 60px; margin-right: 10px;" />
+                <button class="add-to-bag" onclick="addToCart(${product.productId}, '${product.productName}', ${product.price}, '${product.brand}', '${product.productImage}', this.previousElementSibling.value)">ADD TO CART</button>
+              </div>
             </div>
           </c:if>
         </c:forEach>
@@ -93,7 +96,10 @@
               <h3 class="product-name">${product.productName}</h3>
               <p class="product-type">${product.brand}</p>
               <p class="price">$${product.price}</p>
-              <button class="add-to-bag" onclick="addToCart(${product.productId}, '${product.productName}', ${product.price}, '${product.brand}', '${product.productImage}')">ADD TO CART</button>
+              <div class="cart-controls">
+                <input type="number" class="quantity-input" min="1" value="1" data-product-id="${product.productId}" style="width: 60px; margin-right: 10px;" />
+                <button class="add-to-bag" onclick="addToCart(${product.productId}, '${product.productName}', ${product.price}, '${product.brand}', '${product.productImage}', this.previousElementSibling.value)">ADD TO CART</button>
+              </div>
             </div>
           </c:if>
         </c:forEach>
@@ -199,7 +205,23 @@
       updateProducts();
     }
 
-    function addToCart(productId, productName, price, brand, productImage) {
+    function addToCart(productId, productName, price, brand, productImage, quantity) {
+      // Check if user is logged in by looking for username cookie
+      var cookies = document.cookie.split(';').map(cookie => cookie.trim());
+      var usernameCookie = cookies.find(cookie => cookie.startsWith('username='));
+      if (!usernameCookie) {
+        alert('Please log in to add items to your cart.');
+        window.location.href = '${pageContext.request.contextPath}/login';
+        return;
+      }
+
+      // Validate quantity
+      quantity = parseInt(quantity);
+      if (isNaN(quantity) || quantity < 1) {
+        alert('Please enter a valid quantity.');
+        return;
+      }
+
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '${pageContext.request.contextPath}/addtocart', true);
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -208,13 +230,16 @@
                  '&price=' + encodeURIComponent(price) +
                  '&brand=' + encodeURIComponent(brand) +
                  '&productImage=' + encodeURIComponent(productImage) +
-                 '&quantity=1';
+                 '&quantity=' + encodeURIComponent(quantity);
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             alert('Product added to cart!');
+          } else if (xhr.status === 401) {
+            alert('Please log in to add items to your cart.');
+            window.location.href = '${pageContext.request.contextPath}/login';
           } else {
-            alert('Failed to add product to cart.');
+            alert(xhr.responseText || 'Failed to add product to cart.');
           }
         }
       };

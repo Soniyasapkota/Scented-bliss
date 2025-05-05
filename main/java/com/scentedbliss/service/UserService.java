@@ -26,11 +26,15 @@ public class UserService {
             isConnectionError = true;
         }
     }
+    
+    
 
     public UserModel getUserByUsername(String username) {
         if (isConnectionError) {
             return null;
         }
+        
+        
 
         String query = "SELECT firstName, lastName, address, email, phoneNumber, gender, username, dob, role, imageUrl FROM users WHERE username = ?";
         try (PreparedStatement stmt = dbConn.prepareStatement(query)) {

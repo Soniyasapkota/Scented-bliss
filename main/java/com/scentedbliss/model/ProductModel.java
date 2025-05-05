@@ -1,6 +1,7 @@
 package com.scentedbliss.model;
 
 public class ProductModel {
+	private int cartId;
 	private int productId;
     private String productName;
     private String productDescription;
@@ -17,9 +18,10 @@ public class ProductModel {
 	}
 	
 
-	public ProductModel(int productId, String productName, String productDescription, double price, int stock,
+	public ProductModel(int cartId, int productId, String productName, String productDescription, double price, int stock,
 			int quantity, String brand, String productImage, String createdAt, String updatedAt) {
 		super();
+		this.cartId = cartId;
 		this.productId = productId;
 		this.productName = productName;
 		this.productDescription = productDescription;
@@ -30,6 +32,17 @@ public class ProductModel {
 		this.productImage = productImage;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	
+
+	public int getCartId() {
+		return cartId;
+	}
+
+
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
 	}
 
 

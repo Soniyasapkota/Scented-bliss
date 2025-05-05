@@ -22,6 +22,8 @@ public class ShopProductController extends HttpServlet {
             throws ServletException, IOException {
         // Fetch all products from the database
         request.setAttribute("products", productService.getAllProducts());
+        request.setAttribute("brands", productService.getAllBrands());
+
         request.getRequestDispatcher("/WEB-INF/pages/ShopProduct.jsp").forward(request, response);
     }
 

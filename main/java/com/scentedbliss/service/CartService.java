@@ -1,12 +1,14 @@
 package com.scentedbliss.service;
 
 import com.scentedbliss.config.DbConfig;
-import com.scentedbliss.controller.AddtocartController.CartItem;
+import com.scentedbliss.model.ProductModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,137 +26,159 @@ public class CartService {
         }
     }
 
-    private int ensureCartExists(int userId) throws SQLException {
-        String selectQuery = "SELECT cartId FROM cart WHERE userId = ?";
-        try (PreparedStatement stmt = dbConn.prepareStatement(selectQuery)) {
+    public Integer getCartIdByUserId(int userId) {
+        if (isConnectionError) {
+            System.err.println("Cannot fetch cart ID due to connection error");
+            return null;
+        }
+
+        String query = "SELECT cartId FROM cart WHERE userId = ?";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt("cartId");
             }
+        } catch (SQLException e) {
+            System.err.println("SQL Error during cart ID retrieval: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Integer createCart(int userId) {
+        if (isConnectionError) {
+            System.err.println("Cannot create cart due to connection error");
+            return null;
         }
 
-        String insertQuery = "INSERT INTO cart (userId, quantity, createdAt) VALUES (?, 0, CURRENT_TIMESTAMP)";
+        String insertQuery = "INSERT INTO cart (userId, createdAt) VALUES (?, ?)";
         try (PreparedStatement stmt = dbConn.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, userId);
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        }
-        throw new SQLException("Failed to create cart for userId: " + userId);
-    }
-
-    public Boolean addCartItem(int userId, int productId, int quantity) {
-        if (isConnectionError) {
-            System.err.println("Database connection is not available.");
-            return null;
-        }
-
-        try {
-            int cartId = ensureCartExists(userId);
-
-            // Check if the item already exists for the user
-            String selectQuery = "SELECT cart_user_product_ID, quantity FROM cart_user_product WHERE userId = ? AND productId = ?";
-            try (PreparedStatement selectStmt = dbConn.prepareStatement(selectQuery)) {
-                selectStmt.setInt(1, userId);
-                selectStmt.setInt(2, productId);
-                ResultSet rs = selectStmt.executeQuery();
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
-                    // Item exists, update quantity
-                    int cartUserProductId = rs.getInt("cart_user_product_ID");
-                    int currentQuantity = rs.getInt("quantity");
-                    return updateCartItem(cartUserProductId, currentQuantity + quantity);
+                    return rs.getInt(1);
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("SQL Error during cart creation: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-            // Item does not exist, insert new
-            String insertQuery = "INSERT INTO cart_user_product (cartId, userId, productId, quantity) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement stmt = dbConn.prepareStatement(insertQuery)) {
-                stmt.setInt(1, cartId);
-                stmt.setInt(2, userId);
-                stmt.setInt(3, productId);
-                stmt.setInt(4, quantity);
-                int rowsAffected = stmt.executeUpdate();
-                return rowsAffected > 0;
+    public boolean addProductToCart(int cartId, int productId, int quantity) {
+        if (isConnectionError) {
+            System.err.println("Cannot add product to cart due to connection error");
+            return false;
+        }
+
+        // Check if the product is already in the cart
+        String checkQuery = "SELECT quantity FROM cart_product WHERE cartId = ? AND productId = ?";
+        try (PreparedStatement checkStmt = dbConn.prepareStatement(checkQuery)) {
+            checkStmt.setInt(1, cartId);
+            checkStmt.setInt(2, productId);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                // Product exists, update quantity
+                int currentQuantity = rs.getInt("quantity");
+                String updateQuery = "UPDATE cart_product SET quantity = ? WHERE cartId = ? AND productId = ?";
+                try (PreparedStatement updateStmt = dbConn.prepareStatement(updateQuery)) {
+                    updateStmt.setInt(1, currentQuantity + quantity);
+                    updateStmt.setInt(2, cartId);
+                    updateStmt.setInt(3, productId);
+                    return updateStmt.executeUpdate() > 0;
+                }
+            } else {
+                // Product does not exist, insert new entry
+                String insertQuery = "INSERT INTO cart_product (cartId, productId, quantity) VALUES (?, ?, ?)";
+                try (PreparedStatement insertStmt = dbConn.prepareStatement(insertQuery)) {
+                    insertStmt.setInt(1, cartId);
+                    insertStmt.setInt(2, productId);
+                    insertStmt.setInt(3, quantity);
+                    return insertStmt.executeUpdate() > 0;
+                }
             }
         } catch (SQLException e) {
-            System.err.println("SQL Error during cart item addition: " + e.getMessage());
+            System.err.println("SQL Error during add product to cart: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            return false;
         }
     }
 
-    public Boolean updateCartItem(int cartUserProductId, int quantity) {
+    public boolean updateCartProductQuantity(int cartId, int productId, int quantity) {
         if (isConnectionError) {
-            System.err.println("Database connection is not available.");
-            return null;
+            System.err.println("Cannot update cart product quantity due to connection error");
+            return false;
         }
 
-        String updateQuery = "UPDATE cart_user_product SET quantity = ? WHERE cart_user_product_ID = ?";
-        try (PreparedStatement stmt = dbConn.prepareStatement(updateQuery)) {
-            stmt.setInt(1, quantity);
-            stmt.setInt(2, cartUserProductId);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            System.err.println("SQL Error during cart item update: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public Boolean removeCartItem(int cartUserProductId) {
-        if (isConnectionError) {
-            System.err.println("Database connection is not available.");
-            return null;
-        }
-
-        String deleteQuery = "DELETE FROM cart_user_product WHERE cart_user_product_ID = ?";
-        try (PreparedStatement stmt = dbConn.prepareStatement(deleteQuery)) {
-            stmt.setInt(1, cartUserProductId);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            System.err.println("SQL Error during cart item deletion: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public List<CartItem> getCartItems(int userId) {
-        if (isConnectionError) {
-            System.err.println("Connection Error!");
-            return null;
-        }
-
-        String query = "SELECT cup.cart_user_product_ID, cup.productId, cup.quantity, p.productName, p.price, p.brand, p.productImage " +
-                      "FROM cart_user_product cup " +
-                      "JOIN products p ON cup.productId = p.productId " +
-                      "WHERE cup.userId = ?";
+        String query = "UPDATE cart_product SET quantity = ? WHERE cartId = ? AND productId = ?";
         try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-            List<CartItem> cartItems = new ArrayList<>();
-            while (rs.next()) {
-                CartItem item = new CartItem(
-                    rs.getInt("productId"),
-                    rs.getString("productName"),
-                    rs.getDouble("price"),
-                    rs.getString("brand"),
-                    rs.getString("productImage"),
-                    rs.getInt("quantity")
-                );
-                item.setCartUserProductId(rs.getInt("cart_user_product_ID"));
-                cartItems.add(item);
-            }
-            rs.close();
-            return cartItems;
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, cartId);
+            stmt.setInt(3, productId);
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SQL Error during cart retrieval: " + e.getMessage());
+            System.err.println("SQL Error during update cart product quantity: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            return false;
+        }
+    }
+
+    public boolean removeProductFromCart(int cartId, int productId) {
+        if (isConnectionError) {
+            System.err.println("Cannot remove product from cart due to connection error");
+            return false;
+        }
+
+        String query = "DELETE FROM cart_product WHERE cartId = ? AND productId = ?";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
+            stmt.setInt(1, cartId);
+            stmt.setInt(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error during remove product from cart: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<ProductModel> getCartProducts(int cartId) {
+        if (isConnectionError) {
+            System.err.println("Cannot fetch cart products due to connection error");
+            return new ArrayList<>();
+        }
+
+        String query = "SELECT cp.productId, cp.quantity, p.productName, p.productDescription, p.price, p.stock, " +
+                      "p.brand, p.productImage, p.createdAt, p.updatedAt " +
+                      "FROM cart_product cp JOIN products p ON cp.productId = p.productId WHERE cp.cartId = ?";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
+            stmt.setInt(1, cartId);
+            ResultSet rs = stmt.executeQuery();
+            List<ProductModel> products = new ArrayList<>();
+
+            while (rs.next()) {
+                ProductModel product = new ProductModel();
+                product.setProductId(rs.getInt("productId"));
+                product.setProductName(rs.getString("productName"));
+                product.setProductDescription(rs.getString("productDescription"));
+                product.setPrice(rs.getDouble("price"));
+                product.setStock(rs.getInt("stock"));
+                product.setQuantity(rs.getInt("quantity"));
+                product.setBrand(rs.getString("brand"));
+                product.setProductImage(rs.getString("productImage"));
+                product.setCreatedAt(rs.getString("createdAt"));
+                product.setUpdatedAt(rs.getString("updatedAt"));
+                products.add(product);
+            }
+            return products;
+        } catch (SQLException e) {
+            System.err.println("SQL Error during cart products retrieval: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }
