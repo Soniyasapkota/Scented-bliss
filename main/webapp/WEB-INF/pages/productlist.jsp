@@ -12,6 +12,8 @@
   <title>Perfume Shop Product List</title>
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/productlist.css" />
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/header.css" />
+  
+  
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script>
@@ -23,15 +25,16 @@
   </script>
 </head>
 <body>
+
+
   <div class="container">
     <aside class="sidebar">
       <h2>Admin</h2>
       <ul>
         <li><a href="${pageContext.request.contextPath}/dashboard">Dashboard</a></li>
-        <li>Order List</li>
+                <li><a href="${contextPath}/orders">Order List</a></li>
         <li><a href="${pageContext.request.contextPath}/product">Product List</a></li>
        <li><a href="${pageContext.request.contextPath}/customerlist">Customer List</a></li>
-        <li>Sales Reports</li>
        <li><a href="${contextPath}/userProfile"></a>Account</li>
       </ul>
     </aside>

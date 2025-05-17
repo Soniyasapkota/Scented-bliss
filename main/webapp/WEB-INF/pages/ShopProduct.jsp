@@ -65,7 +65,7 @@
           <c:if test="${status.index < 8}">
             <div class="product-card" data-price="${product.price}" data-type="${product.brand}" data-product-id="${product.productId}">
               <div class="product-image-wrapper">
-                <a href="#" class="product-link">
+                <a href="${pageContext.request.contextPath}/productDetail?productId=${product.productId}" class="product-link">
                   <img src="${pageContext.request.contextPath}${product.productImage}" alt="${product.productName}" class="product-image"/>
                 </a>
                 <button class="wishlist-button"><i class="far fa-heart"></i></button>
@@ -88,7 +88,7 @@
           <c:if test="${status.index >= 8}">
             <div class="product-card" data-price="${product.price}" data-type="${product.brand}" data-product-id="${product.productId}">
               <div class="product-image-wrapper">
-                <a href="#" class="product-link">
+                <a href="${pageContext.request.contextPath}/ProductDetail?productId=${product.productId}" class="product-link">
                   <img src="${pageContext.request.contextPath}${product.productImage}" alt="${product.productName}" class="product-image"/>
                 </a>
                 <button class="wishlist-button"><i class="far fa-heart"></i></button>

@@ -11,6 +11,10 @@ import com.scentedbliss.model.UserModel;
 import com.scentedbliss.util.PasswordUtil;
 
 /**
+ * @author 23050320 Soniya Sapkota 
+ */
+
+/**
  * Service class for handling login operations. Connects to the database,
  * verifies user credentials, and returns login status.
  */

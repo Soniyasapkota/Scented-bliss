@@ -15,6 +15,10 @@ import com.scentedbliss.util.ImageUtil;
 
 import java.io.IOException;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 @WebServlet(asyncSupported = true, urlPatterns = { "/updateProfile" })
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
         maxFileSize = 1024 * 1024 * 10, // 10MB
@@ -52,6 +56,7 @@ public class UpdateProfileController extends HttpServlet {
         user.setAddress(request.getParameter("address"));
         user.setEmail(request.getParameter("email"));
         user.setPhoneNumber(request.getParameter("phone"));
+
 
         String profilePicturePath = null;
         try {

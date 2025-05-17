@@ -12,6 +12,10 @@ import com.scentedbliss.util.CookieUtil;
 import com.scentedbliss.util.SessionUtil;
 
 /**
+ * @author 23050320 Soniya Sapkota 
+ */
+
+/**
  * Servlet implementation class LogoutController
  */
 @WebServlet(asyncSupported = true, urlPatterns = {"/logout"})

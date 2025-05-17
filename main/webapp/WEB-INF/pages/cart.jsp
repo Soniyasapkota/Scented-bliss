@@ -71,12 +71,9 @@
           <div class="login-prompt">
             <p>Please <a href="${pageContext.request.contextPath}/login?returnUrl=/cart">log in</a> to view your cart.</p>
           </div>
-          <!-- Debugging output -->
-          <p class="debug">Debug: sessionScope.username is empty. Check if username cookie is set.</p>
         </c:when>
         <c:otherwise>
           <p class="item-count">${cartList != null ? cartList.size() : 0} Items</p>
-          <p class="debug">Debug: sessionScope.username = ${sessionScope.username}</p>
 
           <c:if test="${not empty sessionScope.success}">
             <p class="success">${sessionScope.success}</p>
@@ -155,8 +152,9 @@
                       value="${subtotal + (sessionScope.shippingFee != null ? sessionScope.shippingFee : 10.00)}" 
                       type="currency"/></strong>
         </p>
-        <button class="checkout-btn">CHECKOUT</button>
-      </div>
+<form action="${pageContext.request.contextPath}/checkout" method="POST">
+    <button type="submit" class="checkout-btn">CHECKOUT</button>
+</form>      </div>
     </c:if>
   </div>
 

@@ -18,6 +18,10 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 public class PasswordUtil {
 	private static final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
 

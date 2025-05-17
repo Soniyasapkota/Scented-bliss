@@ -5,6 +5,10 @@ import java.io.IOException;
 import jakarta.servlet.http.Part;
 
 /**
+ * @author 23050320 Soniya Sapkota 
+ */
+
+/**
  * Utility class for handling image file uploads.
  * <p>
  * This class provides methods for extracting the file name from a {@link Part}

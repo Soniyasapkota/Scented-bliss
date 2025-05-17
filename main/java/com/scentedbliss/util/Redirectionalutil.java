@@ -6,6 +6,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 public class Redirectionalutil {
 
 		// TODO Auto-generated constructor stub

@@ -7,6 +7,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 /**
+ * @author 23050320 Soniya Sapkota 
+ */
+
+/**
  * Utility class for managing cookies in a web application.
  * Provides methods to add, retrieve, and delete cookies.
  */

@@ -5,11 +5,15 @@ import jakarta.servlet.ServletException;
 
 
 
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+
+
 
 
 
@@ -64,6 +68,15 @@ public class HomeController extends HttpServlet {
             // Forward to products.jsp if the path is "/products"
             request.getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request, response);
             }
+        
+        else if (path.equals("/orderComplete")) {
+   
+            // Forward to products.jsp if the path is "/products"
+            request.getRequestDispatcher("/WEB-INF/pages/orderComplete.jsp").forward(request, response);
+            }
+      
+        
+       
         
         else if (path.equals("/home")) {
             // Forward to products.jsp if the path is "/products"

@@ -17,6 +17,10 @@ public class CartService {
     private boolean isConnectionError = false;
 
     public CartService() {
+        initializeConnection();
+    }
+
+    private void initializeConnection() {
         try {
             this.dbConn = DbConfig.getDbConnection();
         } catch (SQLException | ClassNotFoundException ex) {
@@ -29,6 +33,7 @@ public class CartService {
     public Integer getCartIdByUserId(int userId) {
         if (isConnectionError) {
             System.err.println("Cannot fetch cart ID due to connection error");
+            reconnectIfNeeded();
             return null;
         }
 
@@ -42,6 +47,7 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during cart ID retrieval: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
         }
         return null;
     }
@@ -49,13 +55,15 @@ public class CartService {
     public Integer createCart(int userId) {
         if (isConnectionError) {
             System.err.println("Cannot create cart due to connection error");
+            reconnectIfNeeded();
             return null;
         }
 
         String insertQuery = "INSERT INTO cart (userId, createdAt) VALUES (?, ?)";
         try (PreparedStatement stmt = dbConn.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, userId);
-            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            // For testing, set to current time (06:11 PM +0545, May 13, 2025)
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(2025, 5, 13, 18, 11, 0)));
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 ResultSet rs = stmt.getGeneratedKeys();
@@ -66,6 +74,7 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during cart creation: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
         }
         return null;
     }
@@ -73,17 +82,16 @@ public class CartService {
     public boolean addProductToCart(int cartId, int productId, int quantity) {
         if (isConnectionError) {
             System.err.println("Cannot add product to cart due to connection error");
+            reconnectIfNeeded();
             return false;
         }
 
-        // Check if the product is already in the cart
         String checkQuery = "SELECT quantity FROM cart_product WHERE cartId = ? AND productId = ?";
         try (PreparedStatement checkStmt = dbConn.prepareStatement(checkQuery)) {
             checkStmt.setInt(1, cartId);
             checkStmt.setInt(2, productId);
             ResultSet rs = checkStmt.executeQuery();
             if (rs.next()) {
-                // Product exists, update quantity
                 int currentQuantity = rs.getInt("quantity");
                 String updateQuery = "UPDATE cart_product SET quantity = ? WHERE cartId = ? AND productId = ?";
                 try (PreparedStatement updateStmt = dbConn.prepareStatement(updateQuery)) {
@@ -93,7 +101,6 @@ public class CartService {
                     return updateStmt.executeUpdate() > 0;
                 }
             } else {
-                // Product does not exist, insert new entry
                 String insertQuery = "INSERT INTO cart_product (cartId, productId, quantity) VALUES (?, ?, ?)";
                 try (PreparedStatement insertStmt = dbConn.prepareStatement(insertQuery)) {
                     insertStmt.setInt(1, cartId);
@@ -105,6 +112,7 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during add product to cart: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
             return false;
         }
     }
@@ -112,6 +120,7 @@ public class CartService {
     public boolean updateCartProductQuantity(int cartId, int productId, int quantity) {
         if (isConnectionError) {
             System.err.println("Cannot update cart product quantity due to connection error");
+            reconnectIfNeeded();
             return false;
         }
 
@@ -124,6 +133,7 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during update cart product quantity: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
             return false;
         }
     }
@@ -131,6 +141,7 @@ public class CartService {
     public boolean removeProductFromCart(int cartId, int productId) {
         if (isConnectionError) {
             System.err.println("Cannot remove product from cart due to connection error");
+            reconnectIfNeeded();
             return false;
         }
 
@@ -142,6 +153,26 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during remove product from cart: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
+            return false;
+        }
+    }
+
+    public boolean clearCart(int cartId) {
+        if (isConnectionError) {
+            System.err.println("Cannot clear cart due to connection error");
+            reconnectIfNeeded();
+            return false;
+        }
+
+        String query = "DELETE FROM cart_product WHERE cartId = ?";
+        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
+            stmt.setInt(1, cartId);
+            return stmt.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error during clear cart: " + e.getMessage());
+            e.printStackTrace();
+            isConnectionError = true;
             return false;
         }
     }
@@ -149,6 +180,7 @@ public class CartService {
     public List<ProductModel> getCartProducts(int cartId) {
         if (isConnectionError) {
             System.err.println("Cannot fetch cart products due to connection error");
+            reconnectIfNeeded();
             return new ArrayList<>();
         }
 
@@ -178,7 +210,18 @@ public class CartService {
         } catch (SQLException e) {
             System.err.println("SQL Error during cart products retrieval: " + e.getMessage());
             e.printStackTrace();
+            isConnectionError = true;
             return new ArrayList<>();
+        }
+    }
+
+    private void reconnectIfNeeded() {
+        if (isConnectionError) {
+            initializeConnection();
+            if (dbConn != null) {
+                isConnectionError = false;
+                System.out.println("Reconnected to database successfully.");
+            }
         }
     }
 }

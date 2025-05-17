@@ -33,35 +33,14 @@ pageContext.setAttribute("currentUserRole", currentUserRole);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         <c:if test="${currentUserRole == 'Admin'}">
-            html, body {
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                display: flex;
-                min-height: 100vh;
-            }
+           
           
             .main-content {
-                flex: 1;
-                padding: 20px;
-                box-sizing: border-box;
+               
                 overflow-y: auto; /* Enable scrolling */
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start; /* Align content to the top */
+               
             }
-            .User-profile {
-                max-width: 800px;
-                margin: 0 auto;
-                width: 100%;
-                padding: 20px 0;
-            }
-            .profile-container {
-                margin: 0;
-                padding: 0;
-            }
+            
         </c:if>
     </style>
 </head>
@@ -73,10 +52,9 @@ pageContext.setAttribute("currentUserRole", currentUserRole);
                     <h2>Admin</h2>
                     <ul>
                         <li><a href="${contextPath}/dashboard">Dashboard</a></li>
-                        <li>Order List</li>
-                        <li><a href="${contextPath}/productlist">Product List</a></li>
+              			  <li><a href="${contextPath}/orders">Order List</a></li>
+                        <li><a href="${contextPath}/product">Product List</a></li>
                         <li><a href="${contextPath}/customerlist">Customer List</a></li>
-                        <li>Sales Reports</li>
                         <li><a href="${contextPath}/userProfile">Account</a></li>
                     </ul>
                 </aside>

@@ -12,6 +12,10 @@ import com.scentedbliss.util.CookieUtil;
 
 import java.io.IOException;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 @WebServlet(asyncSupported = true, urlPatterns = { "/updatePassword" })
 public class UpdatePasswordController extends HttpServlet {
     private static final long serialVersionUID = 1L;

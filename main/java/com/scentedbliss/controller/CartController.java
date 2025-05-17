@@ -1,9 +1,8 @@
 package com.scentedbliss.controller;
 
 import com.scentedbliss.config.DbConfig;
-import com.scentedbliss.model.ProductModel;
+
 import com.scentedbliss.service.CartService;
-import com.scentedbliss.service.UserService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,11 +16,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
+
 @WebServlet(asyncSupported = true, urlPatterns = {"/cart", "/addtocart"})
 public class CartController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final CartService cartService = new CartService();
-    private final UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

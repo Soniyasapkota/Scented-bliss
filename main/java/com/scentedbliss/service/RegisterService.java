@@ -10,6 +10,10 @@ import com.scentedbliss.config.DbConfig;
 import com.scentedbliss.model.UserModel;
 
 /**
+ * @author 23050320 Soniya Sapkota 
+ */
+
+/**
  * RegisterService handles the registration of new users for Scented Bliss.
  * It manages database interactions for user registration.
  */

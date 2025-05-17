@@ -13,6 +13,10 @@ import com.scentedbliss.config.DbConfig;
 
 import jakarta.servlet.http.Part;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 public class ValidationUtil {
 
     // 1. Validate if a field is null or empty

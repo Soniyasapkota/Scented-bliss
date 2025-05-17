@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 public class UserService {
     private Connection dbConn;
     private boolean isConnectionError = false;

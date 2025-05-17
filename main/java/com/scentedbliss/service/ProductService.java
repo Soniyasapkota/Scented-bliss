@@ -10,6 +10,9 @@ import java.util.List;
 import com.scentedbliss.config.DbConfig;
 import com.scentedbliss.model.ProductModel;
 
+/**
+ * @author 23050320 Soniya Sapkota
+ */
 public class ProductService {
     private Connection dbConn;
     private boolean isConnectionError = false;
@@ -221,7 +224,7 @@ public class ProductService {
             return null;
         }
     }
-    
+
     public List<String> getAllBrands() {
         if (isConnectionError) {
             System.err.println("Connection Error!");
@@ -244,5 +247,66 @@ public class ProductService {
             return null;
         }
     }
-   
+
+    public List<ProductModel> getFilteredProducts(String searchTerm, String sort, String filter, boolean showMore) {
+        if (isConnectionError) {
+            System.err.println("Connection Error!");
+            return null;
+        }
+
+        StringBuilder query = new StringBuilder("SELECT * FROM products WHERE 1=1");
+        List<Object> parameters = new ArrayList<>();
+
+        // Search by product name
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            query.append(" AND LOWER(productName) LIKE ?");
+            parameters.add("%" + searchTerm.trim().toLowerCase() + "%");
+        }
+
+        // Filter by brand
+        if (filter != null && !filter.equals("all")) {
+            query.append(" AND brand = ?");
+            parameters.add(filter);
+        }
+
+        // Sort by price
+        if (sort != null && !sort.equals("default")) {
+            if (sort.equals("low-high")) {
+                query.append(" ORDER BY price ASC");
+            } else if (sort.equals("high-low")) {
+                query.append(" ORDER BY price DESC");
+            }
+        }
+
+        try (PreparedStatement stmt = dbConn.prepareStatement(query.toString())) {
+            // Set query parameters
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            List<ProductModel> productList = new ArrayList<>();
+
+            while (rs.next()) {
+                ProductModel product = new ProductModel();
+                product.setProductId(rs.getInt("productId"));
+                product.setProductName(rs.getString("productName"));
+                product.setProductDescription(rs.getString("productDescription"));
+                product.setPrice(rs.getDouble("price"));
+                product.setStock(rs.getInt("stock"));
+                product.setQuantity(rs.getInt("quantity"));
+                product.setBrand(rs.getString("brand"));
+                product.setProductImage(rs.getString("productImage"));
+                product.setCreatedAt(rs.getString("createdAt"));
+                product.setUpdatedAt(rs.getString("updatedAt"));
+                productList.add(product);
+            }
+            rs.close();
+            return productList;
+        } catch (SQLException e) {
+            System.err.println("SQL Error during filtered product retrieval: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

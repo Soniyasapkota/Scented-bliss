@@ -2,29 +2,37 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="jakarta.servlet.http.HttpSession"%>
 <%@ page import="jakarta.servlet.http.HttpServletRequest"%>
+<%@ page import="com.scentedbliss.service.OrderService" %>
+<%@ page import="com.scentedbliss.model.OrderModel" %>
+<%@ page import="java.util.List" %>
 <%
-// Initialize necessary objects and variables
-HttpSession userSession = request.getSession(false);
-String currentUser = (String) (userSession != null ? userSession.getAttribute("role") : null);
-pageContext.setAttribute("currentUser", currentUser);
+    // Initialize necessary objects and variables
+    HttpSession userSession = request.getSession(false);
+    String currentUser = (String) (userSession != null ? userSession.getAttribute("role") : null);
+    pageContext.setAttribute("currentUser", currentUser);
 
-// Get username from cookie
-String username = null;
-Cookie[] cookies = request.getCookies();
-if (cookies != null) {
-    for (Cookie cookie : cookies) {
-        if ("username".equals(cookie.getName())) {
-            username = cookie.getValue();
-            break;
+    // Get username from cookie
+    String username = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("username".equals(cookie.getName())) {
+                username = cookie.getValue();
+                break;
+            }
         }
     }
-}
-pageContext.setAttribute("username", username);
+    pageContext.setAttribute("username", username);
 
-// Debug logging
-System.out.println("customerlist.jsp - Session: " + (userSession != null ? "exists" : "null"));
-System.out.println("customerlist.jsp - Role: " + currentUser);
-System.out.println("customerlist.jsp - Username from cookie: " + username);
+    // Debug logging
+    System.out.println("orders.jsp - Session: " + (userSession != null ? "exists" : "null"));
+    System.out.println("orders.jsp - Role: " + currentUser);
+    System.out.println("orders.jsp - Username from cookie: " + username);
+
+    // Fetch orders
+    OrderService orderService = new OrderService();
+    List<OrderModel> orders = orderService.getAllOrders();
+    pageContext.setAttribute("orders", orders);
 %>
 
 <!-- Set contextPath variable -->
@@ -35,15 +43,18 @@ System.out.println("customerlist.jsp - Username from cookie: " + username);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Perfume Shop - Customer List</title>
-    <link rel="stylesheet" type="text/css" href="${contextPath}/css/dashboard.css" />
+    <title>Perfume Shop - Orders</title>
+    <link rel="stylesheet" type="text/css" href="${contextPath}/css/productlist.css" />
+        <link rel="stylesheet" type="text/css" href="${contextPath}/css/orders.css" />
     <link rel="stylesheet" type="text/css" href="${contextPath}/css/header.css" />
-    
-   <link rel="stylesheet" type="text/css" href="${contextPath}/css/customerlist.css" />
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-   
+   <script>
+    function showOrderItems(orderId) {
+        window.location.href = "${contextPath}/orderItems?orderId=" + orderId;
+    }
+</script>
 </head>
 <body>
     <div class="container">
@@ -54,7 +65,7 @@ System.out.println("customerlist.jsp - Username from cookie: " + username);
                 <li><a href="${contextPath}/orders">Order List</a></li>
                 <li><a href="${contextPath}/product">Product List</a></li>
                 <li><a href="${contextPath}/customerlist">Customer List</a></li>
-       <li><a href="${contextPath}/userProfile"></a>Account</li>
+                <li><a href="${contextPath}/userProfile">Account</a></li>
             </ul>
         </aside>
 
@@ -87,45 +98,34 @@ System.out.println("customerlist.jsp - Username from cookie: " + username);
             <div class="content-body">
                 <c:if test="${not empty currentUser and currentUser.equalsIgnoreCase('Admin')}">
                     <div class="table-container">
-                        <h3>Customer Information</h3>
+                        <h2>Orders</h2>
+                        <c:if test="${not empty success}">
+                            <p class="success-message"><c:out value="${success}" /></p>
+                        </c:if>
                         <c:if test="${not empty error}">
                             <p class="error-message"><c:out value="${error}" /></p>
                         </c:if>
-                        <table>
+                        <table id="ordersTable">
                             <thead>
                                 <tr>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Email</th>
-                                    <th>Phone Number</th>
-                                    <th>Address</th>
-                                    <th>Gender</th>
-                                    <th>Username</th>
-                                    <th>Date of Birth</th>
-                                    <th>Role</th>
-                                    <th>Actions</th>
+                                    <th>Order ID</th>
+                                    <th>Order Date</th>
+                                    <th>User ID</th>
+                                    <th>Shipping Address</th>
+                                    <th>Total Amount</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <c:forEach var="customer" items="${customers}">
+                            <tbody id="ordersBody">
+                                <c:forEach var="order" items="${orders}">
                                     <tr>
-                                        <td><c:out value="${customer.firstName}" /></td>
-                                        <td><c:out value="${customer.lastName}" /></td>
-                                        <td><c:out value="${customer.email}" /></td>
-                                        <td><c:out value="${customer.phoneNumber}" /></td>
-                                        <td><c:out value="${customer.address}" /></td>
-                                        <td><c:out value="${customer.gender}" /></td>
-                                        <td><c:out value="${customer.username}" /></td>
-                                        <td><c:out value="${customer.dob}" /></td>
-                                        <td><c:out value="${customer.role}" /></td>
+                                        <td><c:out value="${order.orderId}" /></td>
+                                        <td><c:out value="${order.orderDate}" /></td>
+                                        <td><c:out value="${order.userId}" /></td>
+                                        <td><c:out value="${order.shippingAddress}" /></td>
+                                        <td>$ <c:out value="${order.totalAmount}" /></td>
                                         <td>
-                                            <form action="${contextPath}/removeCustomer" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
-                                                <input type="hidden" name="username" value="${customer.username}">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button class="action-btn" type="submit">
-                                                    <img src="${contextPath}/resources/images/system/delete.avif" alt="Delete" title="Delete" />
-                                                </button>
-                                            </form>
+                                            <button class="order-items-btn" onclick="showOrderItems('<c:out value="${order.orderId}" />')">Order Items</button>
                                         </td>
                                     </tr>
                                 </c:forEach>

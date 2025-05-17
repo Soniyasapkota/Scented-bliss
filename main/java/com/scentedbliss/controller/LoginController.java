@@ -3,6 +3,7 @@ package com.scentedbliss.controller;
 import java.io.IOException;
 
 
+
 import com.scentedbliss.model.UserModel;
 import com.scentedbliss.service.LoginService;
 import com.scentedbliss.util.CookieUtil;
@@ -15,6 +16,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 
 /**
  * LoginController is responsible for handling login requests. It interacts with

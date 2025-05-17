@@ -22,6 +22,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 
 /**
  * RegisterController handles user registration requests and processes form

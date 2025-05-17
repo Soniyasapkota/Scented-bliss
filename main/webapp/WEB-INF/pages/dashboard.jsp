@@ -37,10 +37,9 @@ pageContext.setAttribute("currentUser", currentUser);
      <h2>Admin</h2>
      <ul>
        <li> <a href="#">Dashboard</a></li>
-       <li>Order List</li>
-       <li> <a href="${pageContext.request.contextPath}/productlist">Product List</a></li>
+       <li><a href="${pageContext.request.contextPath}/orders">Order List</a></li>
+       <li> <a href="${pageContext.request.contextPath}/product">Product List</a></li>
        <li><a href="${pageContext.request.contextPath}/customerlist">Customer List</a></li>
-       <li>Sales Reports</li>
        <li><a href="${pageContext.request.contextPath}/userProfile"></a>Account</li>
      </ul>
    </aside>

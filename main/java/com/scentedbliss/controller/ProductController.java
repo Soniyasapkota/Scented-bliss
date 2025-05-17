@@ -14,6 +14,10 @@ import jakarta.servlet.http.Part;
 
 import java.io.IOException;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 @WebServlet(asyncSupported = true, urlPatterns = {"/product"})
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
                  maxFileSize = 1024 * 1024 * 10,       // 10MB

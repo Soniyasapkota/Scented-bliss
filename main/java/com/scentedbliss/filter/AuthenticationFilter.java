@@ -14,6 +14,10 @@ import java.io.IOException;
 
 import com.scentedbliss.util.SessionUtil;
 
+/**
+ * @author 23050320 Soniya Sapkota 
+ */
+
 @WebFilter(asyncSupported = true, urlPatterns = "/*")
 public class AuthenticationFilter implements Filter {
 
