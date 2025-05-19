@@ -15,13 +15,25 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 
 /**
- * @author 23050320 Soniya Sapkota 
+ * @author 23050320 Soniya Sapkota
+ * 
+ * A servlet controller for managing product-related operations in the application.
+ * Handles HTTP GET requests to display product lists, add product forms, and edit product forms,
+ * and HTTP POST requests to add, edit, or remove products, including image uploads.
+ * It uses ProductService for database operations and ImageUtil for image handling.
+ * 
+ * URL Pattern:
+ * - /product: Manages product list, add, edit, and remove actions.
+ * 
+ * Multipart Configuration:
+ * - fileSizeThreshold: 2MB (threshold for writing to disk)
+ * - maxFileSize: 10MB (maximum size per file)
+ * - maxRequestSize: 50MB (maximum size of the entire request)
  */
-
 @WebServlet(asyncSupported = true, urlPatterns = {"/product"})
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-                 maxFileSize = 1024 * 1024 * 10,       // 10MB
-                 maxRequestSize = 1024 * 1024 * 50)     // 50MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2,  // 2MB threshold for writing to disk
+                 maxFileSize = 1024 * 1024 * 10,       // 10MB maximum file size
+                 maxRequestSize = 1024 * 1024 * 50)     // 50MB maximum request size
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final ProductService productService = new ProductService();
@@ -30,6 +42,7 @@ public class ProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("formSubmit");
+
         if ("addProduct".equals(action)) {
             request.getRequestDispatcher("/WEB-INF/pages/product.jsp").forward(request, response);
             return;
@@ -50,7 +63,6 @@ public class ProductController extends HttpServlet {
             return;
         }
 
-        // Show product list
         request.setAttribute("products", productService.getAllProducts());
         request.getRequestDispatcher("/WEB-INF/pages/productlist.jsp").forward(request, response);
     }
@@ -68,7 +80,7 @@ public class ProductController extends HttpServlet {
                 }
 
                 ProductModel product = extractProductModel(request);
-                String imageUrl = uploadImage(request);
+                String imageUrl = uploadImage(request, null);
 
                 if (imageUrl == null) {
                     handleError(request, response, "Could not upload the image. Please try again later!");
@@ -98,12 +110,29 @@ public class ProductController extends HttpServlet {
                 }
 
                 ProductModel product = extractProductModel(request);
-                product.setProductId(Integer.parseInt(request.getParameter("productId")));
-                String imageUrl = uploadImage(request);
+                int productId = Integer.parseInt(request.getParameter("productId"));
+                product.setProductId(productId);
 
-                if (imageUrl == null) {
-                    handleError(request, response, "Could not upload the image. Please try again later!");
+                // Fetch existing product to get current image URL
+                ProductModel existingProduct = productService.getProductById(productId);
+                if (existingProduct == null) {
+                    handleError(request, response, "Product not found.");
                     return;
+                }
+
+                // Check if a new image is uploaded
+                Part imagePart = request.getPart("productImage");
+                String imageUrl;
+                if (imagePart != null && imagePart.getSize() > 0) {
+                    // New image uploaded, process it
+                    imageUrl = uploadImage(request, existingProduct.getProductImage());
+                    if (imageUrl == null) {
+                        handleError(request, response, "Could not upload the image. Please try again later!");
+                        return;
+                    }
+                } else {
+                    // No new image, retain existing image URL
+                    imageUrl = existingProduct.getProductImage();
                 }
 
                 product.setProductImage(imageUrl);
@@ -206,13 +235,14 @@ public class ProductController extends HttpServlet {
         return product;
     }
 
-    private String uploadImage(HttpServletRequest req) throws IOException, ServletException {
+    private String uploadImage(HttpServletRequest req, String existingImageUrl) throws IOException, ServletException {
         Part image = req.getPart("productImage");
         String saveFolder = "/perfumes";
         String defaultImage = "/resources/images/system/default_product.png";
 
         if (image == null || image.getSize() == 0) {
-            return defaultImage; // Use default if no image provided
+            // Return existing image URL if provided, otherwise default image
+            return existingImageUrl != null ? existingImageUrl : defaultImage;
         }
 
         String rootPath = req.getServletContext().getRealPath("/");
@@ -221,7 +251,8 @@ public class ProductController extends HttpServlet {
         if (isUploaded) {
             return "/resources/images" + saveFolder + "/" + imageUtil.getImageNameFromPart(image);
         }
-        return defaultImage; // Fallback
+        // Return existing image URL if upload fails and it exists, otherwise default
+        return existingImageUrl != null ? existingImageUrl : defaultImage;
     }
 
     private void handleSuccess(HttpServletRequest req, HttpServletResponse resp, String message, String redirectPage)

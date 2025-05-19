@@ -1,7 +1,6 @@
 package com.scentedbliss.service;
 
 import com.scentedbliss.config.DbConfig;
-
 import com.scentedbliss.model.UserModel;
 import com.scentedbliss.util.PasswordUtil;
 
@@ -13,39 +12,51 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * @author 23050320 Soniya Sapkota 
+ * @author 23050320 Soniya Sapkota
+ * 
+ * This class provides service layer functionality for managing user-related operations
+ * such as retrieving user details, updating profiles, changing passwords, fetching all
+ * customers, and removing customers. It interacts with the database using JDBC and
+ * handles connection errors gracefully.
  */
-
 public class UserService {
-    private Connection dbConn;
-    private boolean isConnectionError = false;
+    private Connection dbConn; // Database connection instance
+    private boolean isConnectionError = false; // Flag to track connection issues
 
+    /**
+     * Constructor initializes the database connection. Sets the connection error
+     * flag if the connection fails.
+     * 
+     * @throws SQLException if a database access error occurs
+     * @throws ClassNotFoundException if the JDBC driver class is not found
+     */
     public UserService() {
         try {
-            dbConn = DbConfig.getDbConnection();
+            dbConn = DbConfig.getDbConnection(); // Establish connection to the database
         } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-            isConnectionError = true;
+            ex.printStackTrace(); // Log the exception for debugging
+            isConnectionError = true; // Set flag to indicate connection failure
         }
     }
-    
-    
 
+    /**
+     * Retrieves a user by their username from the database.
+     * 
+     * @param username The username of the user to retrieve
+     * @return UserModel object if found, null otherwise or if connection fails
+     */
     public UserModel getUserByUsername(String username) {
         if (isConnectionError) {
-            return null;
+            return null; // Return null if database connection is unavailable
         }
-        
-        
 
         String query = "SELECT firstName, lastName, address, email, phoneNumber, gender, username, dob, role, imageUrl FROM users WHERE username = ?";
         try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
-            stmt.setString(1, username);
+            stmt.setString(1, username); // Bind the username parameter
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                UserModel user = new UserModel();
+                UserModel user = new UserModel(); // Create a new UserModel instance
                 user.setFirstName(rs.getString("firstName"));
                 user.setLastName(rs.getString("lastName"));
                 user.setAddress(rs.getString("address"));
@@ -53,32 +64,40 @@ public class UserService {
                 user.setPhoneNumber(rs.getString("phoneNumber"));
                 user.setGender(rs.getString("gender"));
                 user.setUsername(rs.getString("username"));
-                user.setDob(rs.getString("dob") != null ? LocalDate.parse(rs.getString("dob")) : null);
+                user.setDob(rs.getString("dob") != null ? LocalDate.parse(rs.getString("dob")) : null); // Parse DOB if present
                 user.setRole(rs.getString("role"));
                 user.setImageUrl(rs.getString("imageUrl"));
-                return user;
+                return user; // Return the populated user object
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Log the exception for debugging
         }
-        return null;
+        return null; // Return null if user not found or an error occurs
     }
 
+    /**
+     * Updates a user's profile information and optionally their profile picture.
+     * If no new profile picture path is provided, a default image is used.
+     * 
+     * @param user The UserModel containing updated profile details
+     * @param profilePicturePath The path to the new profile picture (can be null)
+     * @return true if the update is successful, false otherwise
+     */
     public boolean updateUserProfile(UserModel user, String profilePicturePath) {
         if (isConnectionError) {
             System.out.println("UserService: Cannot update profile due to connection error");
-            return false;
+            return false; // Return false if connection is unavailable
         }
 
         if (user == null || user.getUsername() == null) {
             System.out.println("UserService: Invalid user or username is null");
-            return false;
+            return false; // Return false if user or username is invalid
         }
 
         // Validate required fields
         if (user.getFirstName() == null || user.getLastName() == null || user.getEmail() == null) {
             System.out.println("UserService: Required fields (firstName, lastName, email) are missing for username=" + user.getUsername());
-            return false;
+            return false; // Return false if required fields are missing
         }
 
         String query = "UPDATE users SET firstName = ?, lastName = ?, address = ?, email = ?, phoneNumber = ?, imageUrl = ? WHERE username = ?";
@@ -88,27 +107,35 @@ public class UserService {
             stmt.setString(3, user.getAddress());
             stmt.setString(4, user.getEmail());
             stmt.setString(5, user.getPhoneNumber());
-            stmt.setString(6, profilePicturePath != null ? profilePicturePath : "/resources/images/system/Photo1.png");
+            stmt.setString(6, profilePicturePath != null ? profilePicturePath : "/resources/images/system/Photo1.png"); // Use default image if no new path
             stmt.setString(7, user.getUsername());
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("UserService: Profile updated successfully for username=" + user.getUsername());
-                return true;
+                return true; // Return true if update succeeds
             } else {
                 System.out.println("UserService: No rows affected during profile update for username=" + user.getUsername());
-                return false;
+                return false; // Return false if no rows were updated
             }
         } catch (SQLException e) {
             System.out.println("UserService: SQLException in updateUserProfile: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+            e.printStackTrace(); // Log the exception for debugging
+            return false; // Return false if an SQL error occurs
         }
     }
 
+    /**
+     * Updates a user's password after validating the current password.
+     * 
+     * @param username The username of the user
+     * @param currentPassword The user's current password
+     * @param newPassword The new password to set
+     * @return true if the password is updated successfully, false otherwise
+     */
     public boolean updatePassword(String username, String currentPassword, String newPassword) {
         if (isConnectionError) {
             System.out.println("UserService: Cannot update password due to connection error");
-            return false;
+            return false; // Return false if connection is unavailable
         }
 
         String selectQuery = "SELECT password FROM users WHERE username = ?";
@@ -121,17 +148,17 @@ public class UserService {
                 String decryptedPassword = PasswordUtil.decrypt(dbPassword, username);
                 if (decryptedPassword == null) {
                     System.out.println("UserService: Password decryption failed for username=" + username);
-                    return false;
+                    return false; // Return false if decryption fails
                 }
                 if (!decryptedPassword.equals(currentPassword)) {
                     System.out.println("UserService: Current password does not match for username=" + username);
-                    return false;
+                    return false; // Return false if current password is incorrect
                 }
 
                 String encryptedNewPassword = PasswordUtil.encrypt(username, newPassword);
                 if (encryptedNewPassword == null) {
                     System.out.println("UserService: Password encryption failed for new password");
-                    return false;
+                    return false; // Return false if encryption fails
                 }
 
                 String updateQuery = "UPDATE users SET password = ? WHERE username = ?";
@@ -141,27 +168,32 @@ public class UserService {
                     int rowsAffected = updateStmt.executeUpdate();
                     if (rowsAffected > 0) {
                         System.out.println("UserService: Password updated successfully for username=" + username);
-                        return true;
+                        return true; // Return true if update succeeds
                     } else {
                         System.out.println("UserService: No rows affected during password update for username=" + username);
-                        return false;
+                        return false; // Return false if no rows were updated
                     }
                 }
             } else {
                 System.out.println("UserService: Username not found: " + username);
-                return false;
+                return false; // Return false if username is not found
             }
         } catch (SQLException e) {
             System.out.println("UserService: SQLException during password update: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+            e.printStackTrace(); // Log the exception for debugging
+            return false; // Return false if an SQL error occurs
         }
     }
-    
+
+    /**
+     * Retrieves a list of all users with the 'customer' role.
+     * 
+     * @return List of UserModel objects representing all customers
+     */
     public List<UserModel> getAllCustomers() {
         if (isConnectionError) {
             System.out.println("UserService: Cannot fetch customers due to connection error");
-            return new ArrayList<>();
+            return new ArrayList<>(); // Return empty list if connection fails
         }
 
         List<UserModel> customers = new ArrayList<>();
@@ -169,7 +201,7 @@ public class UserService {
         try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                UserModel user = new UserModel();
+                UserModel user = new UserModel(); // Create a new UserModel for each customer
                 user.setFirstName(rs.getString("firstName"));
                 user.setLastName(rs.getString("lastName"));
                 user.setAddress(rs.getString("address"));
@@ -177,43 +209,45 @@ public class UserService {
                 user.setPhoneNumber(rs.getString("phoneNumber"));
                 user.setGender(rs.getString("gender"));
                 user.setUsername(rs.getString("username"));
-                user.setDob(rs.getString("dob") != null ? LocalDate.parse(rs.getString("dob")) : null);
+                user.setDob(rs.getString("dob") != null ? LocalDate.parse(rs.getString("dob")) : null); // Parse DOB if present
                 user.setRole(rs.getString("role"));
                 user.setImageUrl(rs.getString("imageUrl"));
-                customers.add(user);
+                customers.add(user); // Add customer to the list
             }
         } catch (SQLException e) {
             System.out.println("UserService: SQLException in getAllCustomers: " + e.getMessage());
-            e.printStackTrace();
+            e.printStackTrace(); // Log the exception for debugging
         }
-        return customers;
+        return customers; // Return the list of customers
     }
 
+    /**
+     * Removes a customer from the users table based on their username.
+     * 
+     * @param username The username of the customer to remove
+     * @return true if the customer is removed successfully, false otherwise
+     */
     public boolean removeCustomer(String username) {
         if (isConnectionError) {
             System.out.println("UserService: Cannot remove customer due to connection error");
-            return false;
+            return false; // Return false if connection is unavailable
         }
 
         String query = "DELETE FROM users WHERE username = ? AND role = 'customer'";
         try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
-            stmt.setString(1, username);
+            stmt.setString(1, username); // Bind the username parameter
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("UserService: Customer removed successfully for username=" + username);
-                return true;
+                return true; // Return true if deletion succeeds
             } else {
                 System.out.println("UserService: No customer found for username=" + username);
-                return false;
+                return false; // Return false if no matching customer is found
             }
         } catch (SQLException e) {
             System.out.println("UserService: SQLException in removeCustomer: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+            e.printStackTrace(); // Log the exception for debugging
+            return false; // Return false if an SQL error occurs
         }
     }
-    
-    
-    
-
 }

@@ -51,35 +51,52 @@ public class HomeController extends HttpServlet {
         
        
          if (path.equals("/aboutus")) {
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/aboutus"
             request.getRequestDispatcher("/WEB-INF/pages/aboutus.jsp").forward(request, response);
             }
         else if (path.equals("/contactus")) {
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/contactus"
             request.getRequestDispatcher("/WEB-INF/pages/contactus.jsp").forward(request, response);
             }
         
         else if (path.equals("/shopProduct")) {
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/shopProduct"
             request.getRequestDispatcher("/WEB-INF/pages/shopProduct.jsp").forward(request, response);
             }
         
         else if (path.equals("/dashboard")) {
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/dashboard"
             request.getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request, response);
             }
         
         else if (path.equals("/orderComplete")) {
    
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/orderComplete"
             request.getRequestDispatcher("/WEB-INF/pages/orderComplete.jsp").forward(request, response);
+            }
+         
+        else if (path.equals("/productDetail")) {
+        	   
+            // Forward to products.jsp if the path is "/productDetail"
+            request.getRequestDispatcher("/WEB-INF/pages/productDetail.jsp").forward(request, response);
+            }
+         
+        else if (path.equals("/productlist")) {
+     	   
+            // Forward to products.jsp if the path is "/productDetail"
+            request.getRequestDispatcher("/WEB-INF/pages/productlist.jsp").forward(request, response);
+            }
+        else if (path.equals("/adminProfile")) {
+     	   
+            // Forward to products.jsp if the path is "/adminProfile"
+            request.getRequestDispatcher("/WEB-INF/pages/adminProfile.jsp").forward(request, response);
             }
       
         
        
         
         else if (path.equals("/home")) {
-            // Forward to products.jsp if the path is "/products"
+            // Forward to products.jsp if the path is "/home"
             request.getRequestDispatcher("/WEB-INF/pages/home.jsp").forward(request, response);
             }
         else {
