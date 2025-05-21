@@ -161,32 +161,57 @@ public class ProductService {
      */
     public Boolean deleteProduct(int productId) {
         if (isConnectionError) {
-            System.err.println("Database connection is not available.");
-            return null; // Return null if database connection is unavailable
+            System.err.println("ProductService: Cannot delete product due to connection error");
+            return null;
         }
-
-        String deleteQuery = "DELETE FROM products WHERE productId = ?";
+        // First, delete related rows in cart_product and orderItems to avoid foreign key constraints
+        String deleteCartProductQuery = "DELETE FROM cart_product WHERE productId = ?";
+        String deleteOrderItemsQuery = "DELETE FROM orderItems WHERE productId = ?";
+        String deleteProductQuery = "DELETE FROM products WHERE productId = ?";
         
-        try (PreparedStatement stmt = dbConn.prepareStatement(deleteQuery)) {
-            stmt.setInt(1, productId);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Product successfully deleted!");
-                return true; // Return true if deletion succeeds
-            } else {
-                System.err.println("No rows affected — product deletion failed.");
-                return false; // Return false if no rows were affected
-            }
+        try (PreparedStatement cartStmt = dbConn.prepareStatement(deleteCartProductQuery);
+             PreparedStatement orderStmt = dbConn.prepareStatement(deleteOrderItemsQuery);
+             PreparedStatement productStmt = dbConn.prepareStatement(deleteProductQuery)) {
+            // Begin transaction
+            dbConn.setAutoCommit(false);
+            
+            // Delete from cart_product
+            cartStmt.setInt(1, productId);
+            cartStmt.executeUpdate();
+            
+            // Delete from orderItems
+            orderStmt.setInt(1, productId);
+            orderStmt.executeUpdate();
+            
+            // Delete from products
+            productStmt.setInt(1, productId);
+            int rowsAffected = productStmt.executeUpdate();
+            
+            // Commit transaction
+            dbConn.commit();
+            System.out.println("ProductService: Product deleted successfully, productId=" + productId);
+            return rowsAffected > 0;
         } catch (SQLException e) {
-            System.err.println("SQL Error during product deletion: " + e.getMessage());
-            e.printStackTrace(); // Log the exception for debugging
-            return null; // Return null if an SQL error occurs
-        } catch (Exception e) {
-            System.err.println("Unexpected error during product deletion: " + e.getMessage());
-            e.printStackTrace(); // Log unexpected errors
-            return null; // Return null for other exceptions
+            System.err.println("ProductService: SQL Error deleting product, productId=" + productId + ": " + e.getMessage());
+            e.printStackTrace();
+            try {
+                dbConn.rollback();
+                System.out.println("ProductService: Transaction rolled back for productId=" + productId);
+            } catch (SQLException rollbackEx) {
+                System.err.println("ProductService: Error during rollback: " + rollbackEx.getMessage());
+                rollbackEx.printStackTrace();
+            }
+            isConnectionError = true;
+            return null;
+        } finally {
+            try {
+                dbConn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("ProductService: Error restoring auto-commit: " + e.getMessage());
+            }
         }
     }
+
 
     /**
      * Retrieves a product from the database by its ID.

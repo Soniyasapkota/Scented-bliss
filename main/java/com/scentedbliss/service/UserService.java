@@ -229,25 +229,93 @@ public class UserService {
      */
     public boolean removeCustomer(String username) {
         if (isConnectionError) {
-            System.out.println("UserService: Cannot remove customer due to connection error");
-            return false; // Return false if connection is unavailable
+            System.err.println("UserService: Cannot remove customer due to connection error");
+            return false;
         }
 
-        String query = "DELETE FROM users WHERE username = ? AND role = 'customer'";
-        try (PreparedStatement stmt = dbConn.prepareStatement(query)) {
-            stmt.setString(1, username); // Bind the username parameter
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("UserService: Customer removed successfully for username=" + username);
-                return true; // Return true if deletion succeeds
-            } else {
-                System.out.println("UserService: No customer found for username=" + username);
-                return false; // Return false if no matching customer is found
+        // Queries to delete dependent rows
+        String deleteCartProductQuery = "DELETE FROM cart_product WHERE cartId IN (SELECT cartId FROM cart WHERE userId = (SELECT userId FROM users WHERE username = ?))";
+        String deleteOrderItemsQuery = "DELETE FROM orderItems WHERE orderId IN (SELECT orderId FROM orders WHERE userId = (SELECT userId FROM users WHERE username = ?))";
+        String deleteOrdersQuery = "DELETE FROM orders WHERE userId = (SELECT userId FROM users WHERE username = ?)";
+        String deleteCartQuery = "DELETE FROM cart WHERE userId = (SELECT userId FROM users WHERE username = ?)";
+        String deleteUserQuery = "DELETE FROM users WHERE username = ? AND role = 'customer'";
+
+        try {
+            dbConn.setAutoCommit(false); // Begin transaction
+
+            // Get userId for the username
+            String getUserIdQuery = "SELECT userId FROM users WHERE username = ? AND role = 'customer'";
+            int userId;
+            try (PreparedStatement stmt = dbConn.prepareStatement(getUserIdQuery)) {
+                stmt.setString(1, username);
+                ResultSet rs = stmt.executeQuery();
+                if (!rs.next()) {
+                    System.out.println("UserService: No customer found for username=" + username);
+                    dbConn.rollback();
+                    return false;
+                }
+                userId = rs.getInt("userId");
+            }
+
+            // Delete cart_product
+            try (PreparedStatement stmt = dbConn.prepareStatement(deleteCartProductQuery)) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+                System.out.println("UserService: Deleted cart_product for username=" + username);
+            }
+
+            // Delete orderItems
+            try (PreparedStatement stmt = dbConn.prepareStatement(deleteOrderItemsQuery)) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+                System.out.println("UserService: Deleted orderItems for username=" + username);
+            }
+
+            // Delete orders
+            try (PreparedStatement stmt = dbConn.prepareStatement(deleteOrdersQuery)) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+                System.out.println("UserService: Deleted orders for username=" + username);
+            }
+
+            // Delete cart
+            try (PreparedStatement stmt = dbConn.prepareStatement(deleteCartQuery)) {
+                stmt.setString(1, username);
+                stmt.executeUpdate();
+                System.out.println("UserService: Deleted cart for username=" + username);
+            }
+
+            // Delete user
+            try (PreparedStatement stmt = dbConn.prepareStatement(deleteUserQuery)) {
+                stmt.setString(1, username);
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    dbConn.commit();
+                    System.out.println("UserService: Customer removed successfully for username=" + username + ", userId=" + userId);
+                    return true;
+                } else {
+                    dbConn.rollback();
+                    System.out.println("UserService: No customer found for username=" + username);
+                    return false;
+                }
             }
         } catch (SQLException e) {
-            System.out.println("UserService: SQLException in removeCustomer: " + e.getMessage());
-            e.printStackTrace(); // Log the exception for debugging
-            return false; // Return false if an SQL error occurs
+            System.err.println("UserService: SQLException in removeCustomer for username=" + username + ": " + e.getMessage());
+            e.printStackTrace();
+            try {
+                dbConn.rollback();
+                System.out.println("UserService: Transaction rolled back for username=" + username);
+            } catch (SQLException rollbackEx) {
+                System.err.println("UserService: Error during rollback: " + rollbackEx.getMessage());
+                rollbackEx.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+                dbConn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("UserService: Error restoring auto-commit: " + e.getMessage());
+            }
         }
     }
 }
