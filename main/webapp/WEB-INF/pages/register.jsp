@@ -99,7 +99,6 @@
                         <%-- Role selection dropdown --%>
                         <label for="UserRole">Role:</label>
                         <select id="role" name="role" required>
-                            <option value="admin" ${role == 'admin' ? 'selected' : ''}>Admin</option>
                             <option value="customer" ${role == 'customer' ? 'selected' : ''}>Customer</option>
                         </select>
                     </div>
